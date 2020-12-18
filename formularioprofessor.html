@@ -1,0 +1,147 @@
+<!DOCTYPE html lang="pt-br">
+<html>
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="css/estilo_formulario.css">
+        <title>Formulário de Novo Aluno</title>
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <h1>Universidade Estadual da Paraíba</h1>
+                <h3>Carlos Vinícius e Tiago Matias</h3>
+            </header>
+            <main>
+                <h2>Formulário para Cadastro de Novo Professor</h2>
+                <div>
+                    <a href="index.html"><img class="icone_casa" src="imagens/home.png" alt=""></a>
+                    <p>Página Inicial</p>
+
+                    <form action="">
+                        <label for="matriculaprofessor">Matricula:</label>
+                        <input class="matriculaprofessor" name="matriculaprofessor" maxlength="50">
+                        <br>
+                        <label for="nomeprofessor">Nome: </label>
+                        <input class="nomeprofessor" type="text" name="nomeprofessor" maxlength="50">
+                        <br>
+                        <label for="anoprofessor">Área de Atuação: </label>
+                        <input class="areaprofessor" name="areaprofessor" maxlength="20">
+                        <br>
+                        <input class="confirmarBtn" type="submit" value="Confirmar">
+                        <a href="index.html"><input class="cancelarBtn" type="button" value="Cancelar"></a>
+                    </form>
+                </div>
+            </main>
+        </div>
+        <script>
+
+            //Variáveis Globais - HTML
+            var campo_matricula = document.querySelector("input.matriculaprofessor");
+            var campo_nome = document.querySelector("input.nomeprofessor");
+            var campo_ano = document.querySelector("input.anoprofessor");
+            var botao_confirmar = document.querySelector("input.confirmarBtn");
+            var botao_cancelar = document.querySelector("input.cancelarBtn");
+
+            var idAcao = Number(localStorage.getItem("idAcaoprofessor"));
+
+            
+            //Sequencia
+            var professorSeq = Number(localStorage.getItem("professorSeq"));
+            if(! professorSeq ){
+                professorSeq = 0;
+            }
+
+            //Objetos
+            var ListaProfessor = JSON.parse(localStorage.getItem("ListaProfessor"));
+            if(! ListaProfessor ){
+                ListaProfessor = {Professor:[]};
+            }
+
+            //JSON
+            var myJSON;
+
+            //Funções
+            function apenasNumeros(e){
+                var tecla = String.fromCharCode(e.which);
+                var regex = /[0-9]/;
+                if(! (tecla.match(regex))){
+		            return false;
+	            }
+            }
+
+            function apenasChar(e) {
+                var tecla = String.fromCharCode(e.which);
+                var regex = /[a-zA-Z ]/;
+                if(! (tecla.match(regex))){
+		            return false;
+	            }
+            }
+
+
+            function verificaDados(event) {
+                campo_nome.value = campo_nome.value.trim();
+                if (campo_matricula.value == "" || campo_nome.value == "" || campo_ano.value == "") {
+                    alert("Dados Inválidos! Tente Novamente.");
+                }
+                else{
+                    armazenarDados(event);
+                }
+            }
+
+            function armazenarDados(event) {
+                event.preventDefault();
+                //Adiciona ou modifica um aluno de ListaProfessor
+                if (idAcao == 0) {
+                    professorSeq += 1;
+                    ListaProfessor.Professor.push({matricula: campo_matricula.value, nome: campo_nomeprofessor.value, ano: campo_anoprofessor.value, id: professorSeq});
+                }
+                else{
+                    ListaProfessor.Professor.forEach(e => {
+                        if (e.id == idAcao){
+                            var indice = ListaProfessor.Professor.indexOf(e);
+                            ListaProfessor.Professor.splice(indice, 1, {matricula: campo_matricula.value, nome: campo_nomeprofessor.value, ano: campo_anoprofessor.value, id: idAcao});
+                        }
+                    });
+                }
+                myJSON = JSON.stringify(ListaProfessor);
+                localStorage.setItem("ListaProfessor", myJSON);
+                localStorage.setItem("professorSeq", professorSeq);
+                window.location.assign("index.html");
+            }
+
+            function preencheCamposEditar() {                
+                    if (idAcao != 0) {
+                        var valorMatricula;
+                        var valorNome;
+                        var valorAno;
+                        ListaProfessor.Professor.forEach(e => {
+                            if (e.id == idAcao){
+                                valorMatricula = e.matriculaprofessor;
+                                valorNome = e.nomeprofessor;
+                                valorAno = e.anoprofessor;
+                            }
+                        });
+                        campo_matricula.setAttribute("value", valorMatricula);
+                        campo_nome.setAttribute("value", valorNome);
+                        campo_ano.setAttribute("value", valorAno);
+                }
+            }
+
+            //Rotina Principal
+
+            window.onload = preencheCamposEditar();
+
+            campo_ano.onkeypress = apenasNumeros;
+            campo_matricula.onkeypress = apenasNumeros;
+            campo_nome.onkeypress = apenasChar;
+
+
+            botao_confirmar.addEventListener("click", verificaDados);
+            botao_cancelar.addEventListener("click", function(){
+            window.location.assign("index.html");
+            });
+            
+                
+        </script>
+    </body>
+</html>
